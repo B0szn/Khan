@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Service Solutions</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, collection, onSnapshot, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        window.firebase = {
+            initializeApp,
+            getAuth,
+            signInAnonymously,
+            signInWithCustomToken,
+            onAuthStateChanged,
+            signOut,
+            getFirestore,
+            doc,
+            setDoc,
+            collection,
+            onSnapshot,
+            serverTimestamp,
+            query,
+            orderBy
+        };
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        .hero-bg {
+            background: linear-gradient(135deg, #FF6F00 0%, #E64A19 100%);
+        }
+
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform: translateY(0);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(230, 74, 25, 0.2);
+            animation-play-state: paused;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-5px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .chat-bubble-bot {
+            background-color: #f3f4f6;
+            color: #374151;
+            border-radius: 1.25rem;
+            border-bottom-left-radius: 0;
+            padding: 1rem;
+            max-width: 80%;
+            align-self: flex-start;
+        }
+
+        .chat-bubble-user {
+            background: linear-gradient(90deg, #FF6F00 0%, #E64A19 100%);
+            color: white;
+            border-radius: 1.25rem;
+            border-bottom-right-radius: 0;
+            padding: 1rem;
+            max-width: 80%;
+            align-self: flex-end;
+        }
+
+        .chat-options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 0.5rem;
+        }
+
+        .chat-option-btn {
+            background-color: #ffffff;
+            color: #E64A19;
+            border: 1px solid #E64A19;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .chat-option-btn:hover {
+            background-color: #E64A19;
+            color: white;
+        }
+
+        .modal-bg {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Hide scrollbar for chat box, but allow scrolling */
+        .chat-box-content::-webkit-scrollbar {
+            display: none;
+        }
+        .chat-box-content {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800">
+
+    <!-- Header -->
+    <header class="py-6 px-4 md:px-8 bg-white shadow-sm sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">Khan's Solutions</h1>
+            <nav>
+                <button id="admin-link" class="text-red-600 hover:text-orange-500 font-semibold transition-colors">Admin Panel</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Area (Home Page) -->
+    <div id="main-content">
+        <!-- Hero Section -->
+        <section class="hero-bg text-white py-24 px-4 md:px-8 text-center">
+            <h2 class="text-4xl md:text-6xl font-extrabold mb-4">Your Social Media Success Partner</h2>
+            <p class="text-xl md:text-2xl font-light max-w-3xl mx-auto">Providing professional services for Facebook, YouTube, and TikTok to help you monetize, secure, and grow your online presence.</p>
+        </section>
+
+        <!-- Services Section -->
+        <main class="container mx-auto px-4 py-16">
+            <h3 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">Our Services</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service Cards -->
+                <!-- Note: descriptions are stored in a data attribute for the hover effect -->
+                <!-- Facebook Payout Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="fb_payout_service" data-title="Facebook Payout Service" data-price="300k" data-desc="Helps set up or fix your Facebook payout account.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Facebook Payout Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">300k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Helps set up or fix your Facebook payout account.</p>
+                    </div>
+                </div>
+                <!-- Facebook Settings and Security Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="fb_security_service" data-title="Facebook Settings and Security Service" data-price="150k" data-desc="Secures your account or page from unauthorized access.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Facebook Settings and Security Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">150k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Secures your account or page from unauthorized access.</p>
+                    </div>
+                </div>
+                <!-- Facebook New Page Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="fb_new_page" data-title="Facebook New Page Service" data-price="50k" data-desc="Creates a new, professionally configured Facebook page for you.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Facebook New Page Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">50k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Creates a new, professionally configured Facebook page for you.</p>
+                    </div>
+                </div>
+                <!-- Facebook Bluemark Service (Account) -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="fb_bluemark_account" data-title="Facebook Bluemark Service (Account)" data-price="250k" data-desc="Assists in getting your personal account verified with a blue checkmark.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Facebook Bluemark Service (Account)</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">250k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Assists in getting your personal account verified with a blue checkmark.</p>
+                    </div>
+                </div>
+                <!-- Facebook Bluemark Service (Page) -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="fb_bluemark_page" data-title="Facebook Bluemark Service (Page)" data-price="500k" data-desc="Helps your Facebook page get a blue verification badge.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Facebook Bluemark Service (Page)</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">500k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Helps your Facebook page get a blue verification badge.</p>
+                    </div>
+                </div>
+                <!-- Facebook Content Monetization Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="fb_content_monetization" data-title="Facebook Content Monetization Service" data-price="400k" data-desc="Guides you through the process of monetizing your content on Facebook.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Facebook Content Monetization Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">400k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Guides you through the process of monetizing your content on Facebook.</p>
+                    </div>
+                </div>
+                <!-- Facebook Warning Fixing Services -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="fb_warning_fixing" data-title="Facebook Warning Fixing Services" data-price="200k" data-desc="Resolves and removes policy warnings on your Facebook page or account.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Facebook Warning Fixing Services</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">200k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Resolves and removes policy warnings on your Facebook page or account.</p>
+                    </div>
+                </div>
+                <!-- Facebook Hacked Page/account recovery -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="fb_hacked_recovery" data-title="Facebook Hacked Page/account recovery" data-price="200k" data-desc="Recovers access to your compromised Facebook page or account.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Facebook Hacked Page/account recovery</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">200k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Recovers access to your compromised Facebook page or account.</p>
+                    </div>
+                </div>
+                <!-- Youtube Monetization + Google adsense Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="yt_monetization" data-title="Youtube Monetization + Google adsense Service" data-price="250k" data-desc="Helps you meet the requirements for YouTube monetization and link your AdSense account.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Youtube Monetization + Google adsense Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">250k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Helps you meet the requirements for YouTube monetization and link your AdSense account.</p>
+                    </div>
+                </div>
+                <!-- Youtube Settings and Security Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="yt_security" data-title="Youtube Settings and Security Service" data-price="100k" data-desc="Secures your YouTube channel and optimizes its settings.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Youtube Settings and Security Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">100k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Secures your YouTube channel and optimizes its settings.</p>
+                    </div>
+                </div>
+                <!-- Youtube Hacked Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="yt_hacked" data-title="Youtube Hacked Service" data-price="200k" data-desc="Recovers your hacked YouTube channel.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Youtube Hacked Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">200k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Recovers your hacked YouTube channel.</p>
+                    </div>
+                </div>
+                <!-- TikTok Monetization + Bank Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="tt_monetization" data-title="TikTok Monetization + Bank Service" data-price="200k" data-desc="Assists with setting up TikTok monetization and linking a bank account.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">TikTok Monetization + Bank Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">200k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Assists with setting up TikTok monetization and linking a bank account.</p>
+                    </div>
+                </div>
+                <!-- TikTok Region Change Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="tt_region" data-title="TikTok Region Change Service" data-price="400k" data-desc="Changes the region of your TikTok account to access different features.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">TikTok Region Change Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">400k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Changes the region of your TikTok account to access different features.</p>
+                    </div>
+                </div>
+                <!-- TikTok Settings and Security Service -->
+                <div class="service-card group bg-white rounded-xl shadow-lg p-6 flex flex-col justify-between cursor-pointer" data-service="tt_security" data-title="Tiktok Settings and Security Service" data-price="100k" data-desc="Secures your TikTok account and optimizes its settings.">
+                    <div>
+                        <h4 class="text-xl font-semibold text-gray-900 mb-2">Tiktok Settings and Security Service</h4>
+                        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">100k</p>
+                    </div>
+                    <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <p class="text-sm text-gray-600">Secures your TikTok account and optimizes its settings.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="hidden container mx-auto px-4 py-16">
+        <div id="admin-header" class="flex justify-between items-center mb-8">
+            <h3 class="text-3xl font-bold text-gray-800">Admin Panel</h3>
+            <div id="admin-user-info" class="flex items-center space-x-4">
+                <span id="admin-user-id" class="text-gray-600 text-sm"></span>
+                <button id="admin-logout-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">Logout</button>
+            </div>
+        </div>
+        
+        <!-- Login Form -->
+        <div id="admin-login-form" class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg">
+            <h4 class="text-2xl font-bold mb-6 text-center text-gray-800">Admin Login</h4>
+            <div class="mb-4">
+                <label for="admin-username" class="block text-gray-700 font-medium mb-2">Username</label>
+                <input type="text" id="admin-username" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" placeholder="Enter username">
+            </div>
+            <div class="mb-6">
+                <label for="admin-password" class="block text-gray-700 font-medium mb-2">Password</label>
+                <input type="password" id="admin-password" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500" placeholder="Enter password">
+            </div>
+            <button id="admin-login-btn" class="w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold py-3 rounded-lg hover:from-orange-600 hover:to-red-700 transition-colors">Login</button>
+            <p id="admin-login-error" class="text-red-500 text-center mt-4 hidden">Invalid credentials</p>
+        </div>
+
+        <!-- Request List -->
+        <div id="admin-request-list" class="hidden bg-white p-8 rounded-xl shadow-lg">
+            <h4 class="text-xl font-bold mb-6">Customer Requests</h4>
+            <div id="requests-container" class="space-y-4">
+                <!-- Request cards will be appended here -->
+            </div>
+        </div>
+
+        <!-- Request Detail Modal -->
+        <div id="request-detail-modal" class="modal-bg fixed inset-0 z-[100] flex items-center justify-center hidden">
+            <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 my-8 md:my-16 flex flex-col h-[80vh] max-h-[800px]">
+                <div class="bg-gray-100 rounded-t-xl p-4 flex justify-between items-center">
+                    <h4 id="request-detail-title" class="text-xl font-bold text-gray-900">Request Details</h4>
+                    <button id="close-request-detail" class="text-gray-500 hover:text-gray-900 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+                <div id="request-detail-content" class="flex-1 p-6 overflow-y-auto chat-box-content flex flex-col space-y-4">
+                    <!-- Detailed conversation will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot Modal -->
+    <div id="chatbot-modal" class="modal-bg fixed inset-0 z-[100] flex items-center justify-center hidden">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-xl mx-4 my-8 md:my-16 flex flex-col h-[80vh] max-h-[800px]">
+            <!-- Chat Header -->
+            <div class="bg-gray-100 rounded-t-xl p-4 flex justify-between items-center">
+                <h4 class="text-xl font-bold text-gray-900">Khan <span class="text-sm text-gray-500 font-normal">the bot</span></h4>
+                <button id="close-modal" class="text-gray-500 hover:text-gray-900 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <!-- Chat Content -->
+            <div id="chat-box" class="flex-1 p-6 overflow-y-auto chat-box-content flex flex-col space-y-4">
+                <!-- Chat messages will be appended here -->
+            </div>
+            <!-- User Input/Options Area -->
+            <div id="chat-input-area" class="p-4 border-t border-gray-200">
+                <!-- User input elements will be dynamically inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // Firebase Setup
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : '';
+        let app, db, auth, userId;
+        
+        // This is a simple, hardcoded check for the admin password.
+        const ADMIN_USERNAME = 'admin';
+        const ADMIN_PASSWORD = 'password123';
+
+        // State flags
+        let isAuthReady = false;
+        let isAdminLoggedIn = false;
+
+        const chatFlow = {
+            fb_payout_service: {
+                start: {
+                    message: "Account or Page",
+                    options: [
+                        { text: "Account", next: "q2_country" },
+                        { text: "Page", next: "q2_country" }
+                    ]
+                },
+                q2_country: {
+                    message: "Which country are you currently located?",
+                    type: "dropdown",
+                    options: [], // Will be populated with all countries
+                    next: (answer) => {
+                        if (answer === "Myanmar") {
+                            return "q3_myanmar";
+                        }
+                        return "payment_info";
+                    }
+                },
+                q3_myanmar: {
+                    message: "Do you have a foreign Bank?",
+                    options: [
+                        { text: "Yes", next: "q4_myanmar_foreign_bank" },
+                        { text: "No", next: "q4_myanmar_my_bank" }
+                    ]
+                },
+                q4_myanmar_foreign_bank: {
+                    message: "Which country is your foreign bank in?",
+                    type: "dropdown",
+                    options: [], // All countries
+                    next: "payment_info"
+                },
+                q4_myanmar_my_bank: {
+                    message: "Would you like to use my bank account? I take a 15% cut every payout.",
+                    options: [
+                        { text: "Yes", next: "payment_info" },
+                        { text: "No", next: "end_chat" }
+                    ]
+                },
+                payment_info: {
+                    message: "Thank you. Here is the payment information. Please send a photo of the payment receipt. You can upload it below.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: {
+                    message: "Thank you for your cooperation! We have received your request and will process it shortly.",
+                    end: true
+                }
+            },
+            fb_security_service: {
+                start: {
+                    message: "Account or Page?",
+                    options: [{ text: "Account", next: "payment_info" }, { text: "Page", next: "payment_info" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We will begin processing your request.", end: true }
+            },
+            fb_new_page: {
+                start: {
+                    message: "This is a new page opening service, would you like to open it?",
+                    options: [{ text: "Yes", next: "payment_info" }, { text: "No", next: "end_chat" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We will begin creating your new page.", end: true }
+            },
+            fb_bluemark_account: {
+                start: {
+                    message: "Which Country are you located in?",
+                    type: "dropdown",
+                    options: [],
+                    next: "payment_info"
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We've received your request for Bluemark verification.", end: true }
+            },
+            fb_bluemark_page: {
+                start: {
+                    message: "Which Country are you located in?",
+                    type: "dropdown",
+                    options: [],
+                    next: "payment_info"
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We've received your request for Bluemark verification.", end: true }
+            },
+            fb_content_monetization: {
+                start: {
+                    message: "Which country are you located?",
+                    type: "dropdown",
+                    options: [],
+                    next: "q2_page_account"
+                },
+                q2_page_account: {
+                    message: "Page or Account?",
+                    options: [{ text: "Page", next: "payment_info" }, { text: "Account", next: "payment_info" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We'll start working on your monetization request.", end: true }
+            },
+            fb_warning_fixing: {
+                start: {
+                    message: "Account or Page?",
+                    options: [{ text: "Account", next: "q2_upload_warning" }, { text: "Page", next: "q2_upload_warning" }]
+                },
+                q2_upload_warning: {
+                    message: "Please upload your warning screenshot.",
+                    type: "file_upload_only",
+                    next: "payment_info"
+                },
+                payment_info: {
+                    message: "Thank you. Here is the payment information. Please upload the payment screenshot.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We have everything we need to fix your warnings.", end: true }
+            },
+            fb_hacked_recovery: {
+                start: {
+                    message: "Page or Account?",
+                    options: [{ text: "Page", next: "q2_how_happened" }, { text: "Account", next: "q2_how_happened" }]
+                },
+                q2_how_happened: {
+                    message: "Tell me how it happened?",
+                    type: "text_input",
+                    next: "payment_info"
+                },
+                payment_info: {
+                    message: "Thank you for the details. Here is the payment information. Please upload the payment screenshot.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We will begin your recovery process immediately.", end: true }
+            },
+            yt_monetization: {
+                start: {
+                    message: "I can help with YouTube Monetization and AdSense setup. Would you like to proceed?",
+                    options: [{ text: "Yes", next: "payment_info" }, { text: "No", next: "end_chat" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We'll start the monetization process for you.", end: true }
+            },
+            yt_security: {
+                start: {
+                    message: "I can assist with YouTube Settings and Security. Would you like to proceed?",
+                    options: [{ text: "Yes", next: "payment_info" }, { text: "No", next: "end_chat" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! Your channel security is now our priority.", end: true }
+            },
+            yt_hacked: {
+                start: {
+                    message: "I can help with your hacked YouTube channel. Would you like to proceed?",
+                    options: [{ text: "Yes", next: "payment_info" }, { text: "No", next: "end_chat" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We will begin the recovery process.", end: true }
+            },
+            tt_monetization: {
+                start: {
+                    message: "I can assist with TikTok Monetization and Bank Service setup. Would you like to proceed?",
+                    options: [{ text: "Yes", next: "payment_info" }, { text: "No", next: "end_chat" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We'll begin your TikTok monetization setup.", end: true }
+            },
+            tt_region: {
+                start: {
+                    message: "I can help you with your TikTok Region Change. Would you like to proceed?",
+                    options: [{ text: "Yes", next: "payment_info" }, { text: "No", next: "end_chat" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We'll start the region change process for your account.", end: true }
+            },
+            tt_security: {
+                start: {
+                    message: "I can help with TikTok Settings and Security. Would you like to proceed?",
+                    options: [{ text: "Yes", next: "payment_info" }, { text: "No", next: "end_chat" }]
+                },
+                payment_info: {
+                    message: "Here is the payment information. Please upload the payment screenshot after you've made the payment.",
+                    type: "file_upload",
+                    paymentInfo: true,
+                    next: "end_chat"
+                },
+                end_chat: { message: "Thank you! We'll start securing your TikTok account.", end: true }
+            },
+        };
+
+        const countries = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+            "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+            "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic of the", "Congo, Republic of the", "Costa Rica", "Côte d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czechia",
+            "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+            "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+            "Fiji", "Finland", "France",
+            "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+            "Haiti", "Honduras", "Hungary",
+            "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy",
+            "Jamaica", "Japan", "Jordan",
+            "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan",
+            "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+            "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+            "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+            "Oman",
+            "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+            "Qatar",
+            "Romania", "Russia", "Rwanda",
+            "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+            "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+            "Vanuatu",
+            "Yemen",
+            "Zambia", "Zimbabwe"
+        ].sort();
+
+        // DOM elements
+        const serviceCards = document.querySelectorAll('.service-card');
+        const chatbotModal = document.getElementById('chatbot-modal');
+        const closeModalButton = document.getElementById('close-modal');
+        const chatBox = document.getElementById('chat-box');
+        const chatInputArea = document.getElementById('chat-input-area');
+        
+        const adminLink = document.getElementById('admin-link');
+        const mainContent = document.getElementById('main-content');
+        const adminPanel = document.getElementById('admin-panel');
+        const adminLoginForm = document.getElementById('admin-login-form');
+        const adminLoginBtn = document.getElementById('admin-login-btn');
+        const adminLogoutBtn = document.getElementById('admin-logout-btn');
+        const adminUser = document.getElementById('admin-user-id');
+        const adminRequestList = document.getElementById('admin-request-list');
+        const requestsContainer = document.getElementById('requests-container');
+        const requestDetailModal = document.getElementById('request-detail-modal');
+        const closeRequestDetailBtn = document.getElementById('close-request-detail');
+        const requestDetailContent = document.getElementById('request-detail-content');
+        
+        let currentServiceId = null;
+        let currentState = null;
+        let conversationHistory = [];
+        
+        async function initFirebase() {
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.getAuth(app);
+                db = firebase.getFirestore(app);
+                
+                // Sign in anonymously for all users
+                if (initialAuthToken) {
+                    await firebase.signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await firebase.signInAnonymously(auth);
+                }
+
+                firebase.onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        console.log("Firebase initialized. User ID:", userId);
+                        isAuthReady = true;
+                        // Start fetching admin data if the user is an admin and auth is ready
+                        if (isAdminLoggedIn) {
+                            startAdminDataSync();
+                        }
+                    } else {
+                        userId = null;
+                        isAuthReady = false;
+                        console.log("User signed out.");
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+            }
+        }
+        
+        initFirebase();
+
+        // Admin panel login/logout logic
+        adminLink.addEventListener('click', () => {
+            mainContent.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+            if (isAdminLoggedIn && isAuthReady) {
+                startAdminDataSync();
+            }
+        });
+
+        adminLogoutBtn.addEventListener('click', async () => {
+            isAdminLoggedIn = false;
+            adminLoginForm.classList.remove('hidden');
+            adminRequestList.classList.add('hidden');
+            adminUser.textContent = '';
+            // No need to sign out from Firebase, anonymous user is fine for the main site
+        });
+
+        adminLoginBtn.addEventListener('click', () => {
+            const username = document.getElementById('admin-username').value;
+            const password = document.getElementById('admin-password').value;
+            const loginError = document.getElementById('admin-login-error');
+
+            if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                isAdminLoggedIn = true;
+                adminLoginForm.classList.add('hidden');
+                adminRequestList.classList.remove('hidden');
+                adminUser.textContent = `User: ${ADMIN_USERNAME}`;
+                loginError.classList.add('hidden');
+                // Call data sync if auth is already ready
+                if (isAuthReady) {
+                    startAdminDataSync();
+                }
+            } else {
+                loginError.classList.remove('hidden');
+            }
+        });
+        
+        closeRequestDetailBtn.addEventListener('click', () => {
+            requestDetailModal.classList.add('hidden');
+        });
+
+        // This function sets up the real-time listener for admin data
+        function startAdminDataSync() {
+            if (!isAuthReady || !isAdminLoggedIn) {
+                console.log("Admin data sync: Not ready. isAuthReady:", isAuthReady, "isAdminLoggedIn:", isAdminLoggedIn);
+                return;
+            }
+
+            console.log("Starting admin data sync...");
+            const requestsCollection = firebase.collection(db, `artifacts/${appId}/public/data/requests`);
+            
+            // Listen for real-time updates
+            const q = firebase.query(requestsCollection);
+            
+            // Use onSnapshot to get real-time updates and populate the UI
+            firebase.onSnapshot(q, (snapshot) => {
+                requestsContainer.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const requestCard = document.createElement('div');
+                    requestCard.className = "bg-gray-50 p-4 rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition-colors";
+                    requestCard.innerHTML = `
+                        <p class="font-bold text-gray-900">${data.serviceTitle}</p>
+                        <p class="text-sm text-gray-500">Request ID: <span class="text-xs font-mono">${doc.id}</span></p>
+                        <p class="text-xs text-gray-400 mt-1">Submitted: ${new Date(data.timestamp.seconds * 1000).toLocaleString()}</p>
+                    `;
+                    requestCard.addEventListener('click', () => showRequestDetail(data));
+                    requestsContainer.appendChild(requestCard);
+                });
+            }, (error) => {
+                console.error("Error fetching admin requests:", error);
+            });
+        }
+
+        // Display detailed request in a modal
+        function showRequestDetail(data) {
+            requestDetailContent.innerHTML = '';
+            document.getElementById('request-detail-title').textContent = `${data.serviceTitle} Details`;
+            
+            data.conversation.forEach(chat => {
+                const messageElement = document.createElement('div');
+                messageElement.className = `flex mb-4 ${chat.sender === 'bot' ? 'justify-start' : 'justify-end'}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `chat-bubble-${chat.sender}`;
+                
+                // For messages with HTML, set innerHTML
+                if (chat.message.includes("Payment Information")) {
+                    bubble.innerHTML = chat.message;
+                } else {
+                    bubble.textContent = chat.message;
+                }
+                
+                messageElement.appendChild(bubble);
+                requestDetailContent.appendChild(messageElement);
+            });
+            requestDetailModal.classList.remove('hidden');
+            requestDetailContent.scrollTop = requestDetailContent.scrollHeight;
+        }
+
+        // Customer Chatbot logic
+        serviceCards.forEach(card => {
+            card.addEventListener('click', () => {
+                currentServiceId = card.dataset.service;
+                const serviceTitle = card.dataset.title;
+                const servicePrice = card.dataset.price;
+                
+                conversationHistory = [];
+                chatBox.innerHTML = '';
+                
+                chatbotModal.classList.remove('hidden');
+
+                startChat(currentServiceId, serviceTitle, servicePrice);
+            });
+        });
+
+        closeModalButton.addEventListener('click', () => {
+            chatbotModal.classList.add('hidden');
+        });
+
+        chatbotModal.addEventListener('click', (e) => {
+            if (e.target === chatbotModal) {
+                chatbotModal.classList.add('hidden');
+            }
+        });
+        
+        function addMessage(sender, text, isHtml = false) {
+            const messageElement = document.createElement('div');
+            messageElement.className = `flex mb-4 ${sender === 'bot' ? 'justify-start' : 'justify-end'}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `chat-bubble-${sender}`;
+
+            if (isHtml) {
+                bubble.innerHTML = text;
+            } else {
+                bubble.textContent = text;
+            }
+            
+            messageElement.appendChild(bubble);
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function startChat(serviceId, serviceTitle, servicePrice) {
+            currentState = chatFlow[serviceId].start;
+            
+            const welcomeMessage = `Hello! My name is Khan. I see you are interested in our "${serviceTitle}" service for ${servicePrice}. Let's get started.`;
+            conversationHistory.push({ sender: 'bot', message: welcomeMessage });
+            addMessage('bot', welcomeMessage);
+            
+            setTimeout(() => {
+                showQuestion(currentState);
+            }, 1000);
+        }
+
+        function showQuestion(questionState) {
+            let messageText = questionState.message;
+            if (questionState.paymentInfo) {
+                const serviceCard = document.querySelector(`[data-service="${currentServiceId}"]`);
+                const paymentAmount = serviceCard.dataset.price;
+                messageText += `<br><br><span class="font-bold">Payment Information:</span><br>Bank: ABC Bank<br>Account Name: Khan's Solutions<br>Account Number: 123-456-789<br>Total amount: ${paymentAmount}<br><br><span class="text-sm italic">Please make the payment and upload a screenshot below.</span>`;
+            }
+            conversationHistory.push({ sender: 'bot', message: messageText });
+            addMessage('bot', messageText, true);
+            
+            chatInputArea.innerHTML = '';
+            
+            if (questionState.type === "dropdown") {
+                const dropdown = document.createElement('select');
+                dropdown.className = "w-full p-2 border border-gray-300 rounded-lg text-gray-700 focus:ring-red-500 focus:border-red-500";
+                
+                const defaultOption = document.createElement('option');
+                defaultOption.value = "";
+                defaultOption.textContent = "Select your country";
+                dropdown.appendChild(defaultOption);
+
+                const optionsToUse = questionState.options.length > 0 ? questionState.options : countries;
+                optionsToUse.forEach(country => {
+                    const option = document.createElement('option');
+                    option.value = country;
+                    option.textContent = country;
+                    dropdown.appendChild(option);
+                });
+
+                chatInputArea.appendChild(dropdown);
+                
+                dropdown.addEventListener('change', (e) => {
+                    handleAnswer(e.target.value);
+                });
+            } else if (questionState.type === "text_input") {
+                const input = document.createElement('textarea');
+                input.className = "w-full p-2 border border-gray-300 rounded-lg text-gray-700 resize-none focus:ring-red-500 focus:border-red-500";
+                input.placeholder = "Type your answer here...";
+                chatInputArea.appendChild(input);
+                
+                const sendButton = document.createElement('button');
+                sendButton.className = "mt-2 w-full bg-gradient-to-r from-orange-500 to-red-600 text-white font-bold py-2 px-4 rounded-lg hover:from-orange-600 hover:to-red-700 transition-colors";
+                sendButton.textContent = "Send";
+                chatInputArea.appendChild(sendButton);
+
+                sendButton.addEventListener('click', () => {
+                    if (input.value.trim() !== '') {
+                        handleAnswer(input.value);
+                    }
+                });
+            } else if (questionState.type === "file_upload" || questionState.type === "file_upload_only") {
+                const uploadContainer = document.createElement('div');
+                uploadContainer.className = "flex flex-col items-center justify-center p-4 border-2 border-dashed border-gray-300 rounded-lg text-gray-500 hover:border-red-500 transition-colors cursor-pointer";
+                uploadContainer.innerHTML = `
+                    <svg class="w-10 h-10 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 0115.9 6H16a2 2 0 012 2v1l-1 1M6 16a4 4 0 01-1 7H4a2 2 0 01-2-2v-1l1-1m8-11L8 3m0 0L4 7m4-4v12a2 2 0 01-2 2H6m-4 0h12a2 2 0 002-2V7a2 2 0 00-2-2H2a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                    <p class="text-sm">Click to upload a screenshot</p>
+                `;
+                
+                const fileInput = document.createElement('input');
+                fileInput.type = "file";
+                fileInput.className = "hidden";
+                uploadContainer.appendChild(fileInput);
+                chatInputArea.appendChild(uploadContainer);
+                
+                uploadContainer.addEventListener('click', () => fileInput.click());
+                
+                fileInput.addEventListener('change', () => {
+                    if (fileInput.files.length > 0) {
+                        const fileName = fileInput.files[0].name;
+                        // Simulating a file upload by just logging the filename
+                        const uploadMessage = `Screenshot uploaded: ${fileName}`;
+                        conversationHistory.push({ sender: 'user', message: uploadMessage });
+                        addMessage('user', uploadMessage);
+                        
+                        setTimeout(() => {
+                           handleAnswer('file_uploaded');
+                        }, 500);
+                    }
+                });
+            } else {
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = "chat-options-container";
+                
+                questionState.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.className = "chat-option-btn";
+                    button.textContent = option.text;
+                    button.addEventListener('click', () => handleAnswer(option.text));
+                    optionsContainer.appendChild(button);
+                });
+                
+                chatInputArea.appendChild(optionsContainer);
+            }
+        }
+
+        function handleAnswer(answer) {
+            conversationHistory.push({ sender: 'user', message: answer });
+            addMessage('user', answer);
+            
+            let nextStateKey;
+            if (typeof currentState.next === 'function') {
+                nextStateKey = currentState.next(answer);
+            } else if (currentState.options) {
+                const selectedOption = currentState.options.find(opt => opt.text === answer);
+                nextStateKey = selectedOption ? selectedOption.next : currentState.next;
+            } else {
+                nextStateKey = currentState.next;
+            }
+            
+            const nextState = chatFlow[currentServiceId][nextStateKey];
+            if (nextState) {
+                currentState = nextState;
+                
+                setTimeout(() => {
+                    if (currentState.end) {
+                        // Add final bot message
+                        conversationHistory.push({ sender: 'bot', message: currentState.message });
+                        addMessage('bot', currentState.message);
+                        chatInputArea.innerHTML = '';
+                        
+                        // Save the chat session to Firestore
+                        saveChatSession();
+                    } else {
+                        showQuestion(currentState);
+                    }
+                }, 1000);
+            }
+        }
+
+        async function saveChatSession() {
+            if (!isAuthReady || !userId) {
+                console.error("Firebase is not ready or user not authenticated.");
+                return;
+            }
+            
+            try {
+                // Use a public collection for all requests
+                const requestsCollectionRef = firebase.collection(db, `artifacts/${appId}/public/data/requests`);
+                const newRequestRef = firebase.doc(requestsCollectionRef);
+                const serviceCard = document.querySelector(`[data-service="${currentServiceId}"]`);
+                
+                const requestData = {
+                    serviceId: currentServiceId,
+                    serviceTitle: serviceCard.dataset.title,
+                    price: serviceCard.dataset.price,
+                    conversation: conversationHistory,
+                    timestamp: firebase.serverTimestamp(),
+                    customerUserId: userId
+                };
+                
+                await firebase.setDoc(newRequestRef, requestData);
+                console.log("Chat session saved to Firestore with ID:", newRequestRef.id);
+            } catch (error) {
+                console.error("Error saving chat session:", error);
+            }
+        }
+    </script>
+</body>
+</html>
